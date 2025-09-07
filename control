@@ -1,0 +1,9 @@
+Package: com.kdt.sim26booter
+Name: Sim26Booter
+Version: 0.0.1
+Architecture: iphoneos-arm
+Description: An awesome tool of some sort!!
+Maintainer: khanhduytran0
+Author: khanhduytran0
+Section: System
+Tag: role::hacker
