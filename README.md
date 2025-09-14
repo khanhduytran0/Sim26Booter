@@ -40,7 +40,7 @@ Boot iOS 26 simulator on iPhone?
 ```sh
 launchctl kickstart user/501/com.apple.CoreSimulator.SimDevice.93463F5E-ECBC-4762-ABC7-7CE6E88FED59
 ```
-- It will then spawn `simulator-trampoline` and pass some host mach ports to it:
+- It will then spawn `simulator-trampoline` and pass some host mach ports to it using `liblaunch_sim.dylib`'s `launch_sim_register_endpoint` via `SimLaunchHost.*`
 > [!NOTE]
 > Many optional ports are excluded from this list, but I still left the important ones:
 > - `IndigoHIDRegistrationPort`: proxy HID events. Without this port, keyboard and touch input won't work.
@@ -95,3 +95,27 @@ defaults write com.apple.CoreSimulator DisableResponsibility -bool true
 - It first retrieves the stashed bootstrap port from `launchd_sim_trampoline_tank` by sending a message with `msgh_id = 708` and save it somewhere, then the temporary bootstrap port is discarded. Then it waits for `launchd_sim_trampoline_tank` to exit
 - It reads the plist file passed as argument to get the simulator's environment and other configurations
 - Finally it enters the main loop to spawn and handle launch jobs
+
+## Misc notes
+### How Metal XPC is spawned
+- SimRenderServer is responsible for spawning 3 `SimMetalHost.xpc` processes.
+```
+(lldb)  po (char*)$x0
+"com.apple.CoreSimulator.SimRenderingServices.SimMetalHost"
+Process 69822 stopped
+* thread #5, queue = 'ROCKSessionManager.invocationQueue.43CC8A06-C7E9-4C0D-8DAD-955F83895B0A', stop reason = breakpoint 2.1
+    frame #0: 0x0000000185b86fe0 libxpc.dylib`xpc_connection_create
+libxpc.dylib`xpc_connection_create:
+->  0x185b86fe0 <+0>:  pacibsp 
+    0x185b86fe4 <+4>:  stp    x20, x19, [sp, #-0x20]!
+    0x185b86fe8 <+8>:  stp    x29, x30, [sp, #0x10]
+    0x185b86fec <+12>: add    x29, sp, #0x10
+Target 0: (SimRenderServer) stopped.
+(lldb) bt
+* thread #5, queue = 'ROCKSessionManager.invocationQueue.43CC8A06-C7E9-4C0D-8DAD-955F83895B0A', stop reason = breakpoint 2.1
+  * frame #0: 0x0000000185b86fe0 libxpc.dylib`xpc_connection_create
+    frame #1: 0x0000000102ec323c SimRenderServer`___lldb_unnamed_symbol1616 + 1188
+    frame #2: 0x0000000102ec98f4 SimRenderServer`SimRenderServer.MetalDeviceDescriptor.init(device: __C.SimDeviceIOInterface, implementationURL: Foundation.URL) -> SimRenderServer.MetalDeviceDescriptor + 804
+    frame #3: 0x0000000102ec92e0 SimRenderServer`static SimRenderServer.MetalDeviceDescriptor.makeDescriptor(device: __C.SimDeviceIOInterface) -> Swift.Optional<SimRenderServer.MetalDeviceDescriptor> + 744
+    frame #4: 0x0000000102ec7550 SimRenderServer`SimRenderServer.RenderServerBundle.createDefaultPorts(forDevice: __C.SimDeviceIOInterface) throws -> Swift.Array<__C.SimDeviceIOPortInterface> + 716
+```

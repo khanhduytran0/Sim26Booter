@@ -10,4 +10,7 @@ SUBPROJECTS += launchd_sim_trampoline_hook
 # iOS simulator subprojects
 SUBPROJECTS += launchd_sim_hook
 
+SUBPROJECTS += SimFramebuffer
+SUBPROJECTS += simsendport
+SUBPROJECTS += simxpctest
 include $(THEOS_MAKE_PATH)/aggregate.mk

@@ -8,6 +8,8 @@
 @import CoreGraphics;
 @import Foundation;
 
+const uint64_t simFramebufferGetStructName = 0xa9017bfda9be4ff4;
+
 @interface SFBConnection : NSObject
 @property(nonatomic) NSString *name;
 @property(nonatomic) NSArray *displays;
@@ -92,3 +94,138 @@ BOOL SFBSwapchainSwapAddSurface(SFBSwapchain *swapchain, IOSurfaceRef surface, C
 BOOL SFBSwapchainSwapSubmit(SFBSwapchain *swapchain, NSError **error) {
     return YES;
 }
+
+// stubs
+void SFBConnectionCopyDisplay() { abort(); }
+void SFBConnectionCopyDisplayByUID() { abort(); }
+void SFBConnectionCreateDisplay() { abort(); }
+void SFBConnectionGetID() { abort(); }
+void SFBConnectionGetTypeID() { abort(); }
+void SFBConnectionRemoveDisplay() { abort(); }
+void SFBConnectionSetDisplayConnectedHandler() { abort(); }
+void SFBConnectionSetDisplayDisconnectedHandler() { abort(); }
+void SFBConnectionUpdateDisplay() { abort(); }
+void SFBDisplayCopyExtendedPropertyProtocols() { abort(); }
+void SFBDisplayGetCanvasSize() { abort(); }
+void SFBDisplayGetCanvasSizeCount() { abort(); }
+void SFBDisplayGetConnectionID() { abort(); }
+void SFBDisplayGetDotPitch() { abort(); }
+void SFBDisplayGetExtendedProperties() { abort(); }
+void SFBDisplayGetFlags() { abort(); }
+void SFBDisplayGetID() { abort(); }
+void SFBDisplayGetMaskPath() { abort(); }
+void SFBDisplayGetMaxLayerCount() { abort(); }
+void SFBDisplayGetMaxSwapchainCount() { abort(); }
+void SFBDisplayGetMode() { abort(); }
+void SFBDisplayGetModeCount() { abort(); }
+void SFBDisplayGetPowerState() { abort(); }
+void SFBDisplayGetPreferredMode() { abort(); }
+void SFBDisplayGetSupportedPresentationModes() { abort(); }
+void SFBDisplayGetSupportedSurfaceFlags() { abort(); }
+void SFBDisplayGetTypeID() { abort(); }
+void SFBDisplaySetBacklightState() { abort(); }
+void SFBDisplaySetBrightnessFactor() { abort(); }
+void SFBDisplaySetCanvasSize() { abort(); }
+void SFBDisplaySetCurrentMode() { abort(); }
+void SFBDisplaySetCurrentUIOrientation() { abort(); }
+void SFBSetCreateByAddingSet() { abort(); }
+void SFBSetCreateByIntersectingSet() { abort(); }
+void SFBSetCreateBySubtractingSet() { abort(); }
+void SFBSetCreateFromArray() { abort(); }
+void SFBSetGetEmpty() { abort(); }
+void SFBSwapchainAcquireSurfaceFence() { abort(); }
+void SFBSwapchainGetColorspace() { abort(); }
+void SFBSwapchainGetConnectionID() { abort(); }
+void SFBSwapchainGetDisplayID() { abort(); }
+void SFBSwapchainGetFramebufferSize() { abort(); }
+void SFBSwapchainGetHDRMode() { abort(); }
+void SFBSwapchainGetID() { abort(); }
+void SFBSwapchainGetMaxSurfacesPerOperation() { abort(); }
+void SFBSwapchainGetPixelFormat() { abort(); }
+void SFBSwapchainGetPresentationMode() { abort(); }
+void SFBSwapchainGetTypeID() { abort(); }
+void SFBSwapchainSwapCancel() { abort(); }
+void SFBSwapchainSwapSetCallback() { abort(); }
+
+/*
+ OBJC_CLASS_$__SFBSwapSurfaceFence
+ OBJC_METACLASS_$__SFBSwapSurfaceFence
+ _SFBConnectionAssertQueue
+ _SFBConnectionGetByIDAndRetain
+ _SFBDisplayAddExtendedProperties
+ _SFBDisplayAddExtendedPropertiesProtocol
+ _SFBDisplayAddMaskPath
+ _SFBDisplayAddMode
+ _SFBDisplayCreate
+ _SFBErrorCreate
+ _SFBErrorCreateFromMach
+ _SFBErrorCreateFromSimReplyError
+ _SFBErrorCreateNotConnected
+ _SFBGetServerPort
+ _SFBSetFramebufferServerEnabled
+ _SFBSetServerPort
+ _SFBSwapchainCreate
+ _SFBSwapchainGetByIDAndRetain
+ _SFBSwapchainInvokeCallback
+ _SimFramebufferCrashBuffer
+ _SimFramebufferSetCrashMessage
+ __SFBConnectionAllocated
+ _displayCreatedOrUpdatedCallback
+ _displayRemovedCallback
+ _displaysCopyFromReply
+ _nsToMachTime
+ _presentCallback
+ kSFBDisplayOptionKeyApplyMask
+ kSFBDisplayOptionKeyMaskPath
+ kSFBErrorDomain
+ kSFBSwapchainOptionUseFences
+ simFramebufferClientGetErrorDescription
+ simFramebufferMessageAddCheckin
+ simFramebufferMessageAddCheckinReply
+ simFramebufferMessageAddData
+ simFramebufferMessageAddDisplayExtendedProperties
+ simFramebufferMessageAddDisplayExtendedProtocolName
+ simFramebufferMessageAddDisplayMaskPath
+ simFramebufferMessageAddDisplayMode
+ simFramebufferMessageAddDisplayProperties
+ simFramebufferMessageAddDisplaySetBacklightState
+ simFramebufferMessageAddDisplaySetBrightnessFactor
+ simFramebufferMessageAddDisplaySetCanvasSize
+ simFramebufferMessageAddDisplaySetCurrentMode
+ simFramebufferMessageAddDisplaySetCurrentUIOrientation
+ simFramebufferMessageAddErrorReply
+ simFramebufferMessageAddSwapchain
+ simFramebufferMessageAddSwapchainCancel
+ simFramebufferMessageAddSwapchainPresent
+ simFramebufferMessageAddSwapchainPresentCallback
+ simFramebufferMessageCopyDisplayMaskPath
+ simFramebufferMessageCreate
+ simFramebufferMessageCreateDescription
+ simFramebufferMessageDealloc
+ simFramebufferMessageEnumerate
+ simFramebufferMessageEnumerateOfType
+ simFramebufferMessageEnumerateOfTypeWithBlock
+ simFramebufferMessageEnumerateProtocolNames
+ simFramebufferMessageEnumerateProtocolNamesWithBlock
+ simFramebufferMessageEnumerateWithBlock
+ simFramebufferMessageGetDescriptor
+ simFramebufferMessageGetMachHeader
+ simFramebufferMessageGetSessionID
+ simFramebufferMessageReceive
+ simFramebufferMessageReceiveWithAuditToken
+ simFramebufferMessageSendOneShot
+ simFramebufferMessageSendReply
+ simFramebufferMessageSendWithReply
+ simFramebufferMessageSendWithReplyWithBlock
+ simFramebufferMessageSendWithReplyWithBlockAsync
+ simFramebufferMessageSize
+ simFramebufferMessageValidateAllowedType
+ simFramebufferMessageValidateAllowedTypes
+ simFramebufferServerPortName
+ */
+@interface SFBSwapSurfaceFence : NSObject
+@end
+@implementation SFBSwapSurfaceFence
+@end
+
+

@@ -11,3 +11,4 @@ add_trustcache() {
 
 add_trustcache "sbin/ldfix.dylib"
 add_trustcache "sbin/ltfix.dylib"
+add_trustcache "System/Library/PrivateFrameworks/SimFramebuffer.framework/SimFramebuffer"

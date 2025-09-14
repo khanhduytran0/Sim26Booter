@@ -1,0 +1,139 @@
+diff --git a/tmp/dyld.orig.txt b/tmp/dyld.curr.txt
+index 218c79a..e62e4af 100644
+--- a/tmp/dyld.orig.txt
++++ b/tmp/dyld.curr.txt
+@@ -1,4 +1,4 @@
+-/tmp/dyld.orig.mod:
++/var/mobile/Documents/ModDyld/dyld.macOS.old:
+ (__TEXT,__text) section
+ _mach_msg_destroy:
+ 0000000000005000	pacibsp
+@@ -8859,7 +8859,7 @@ __ZN5dyld413ProcessConfig7ProcessC2EPKNS_10KernelArgsERNS_15SyscallDelegateERN3l
+ 000000000000d700	cbnz	w0, 0xd708
+ 000000000000d704	str	wzr, [x19, #0x9c]
+ 000000000000d708	adrp	x1, 119 ; 0x84000
+-000000000000d70c	add	x1, x1, #0xb50 ; literal pool for: "/System/Library/PrivateFrameworks/CoreFP.framework/Versions/A/fairplayd"
++000000000000d70c	add	x1, x1, #0xb50 ; literal pool for: "/usr/sbin/fairplayd.H2"
+ 000000000000d710	mov	x0, x20
+ 000000000000d714	bl	__platform_strcmp
+ 000000000000d718	cbnz	w0, 0xd720
+@@ -9534,8 +9534,8 @@ __ZN5dyld413ProcessConfig8SecurityC2ERNS0_7ProcessERNS_15SyscallDelegateE:
+ 000000000000e154	ldp	x22, x21, [sp], #0x30
+ 000000000000e158	retab
+ __ZN5dyld413ProcessConfig8Security7getAMFIERKNS0_7ProcessERNS_15SyscallDelegateE:
+-000000000000e15c	pacibsp
+-000000000000e160	sub	sp, sp, #0x40
++000000000000e15c	mov	x0, #0xff
++000000000000e160	ret
+ 000000000000e164	stp	x22, x21, [sp, #0x10]
+ 000000000000e168	stp	x20, x19, [sp, #0x20]
+ 000000000000e16c	stp	x29, x30, [sp, #0x30]
+@@ -9897,7 +9897,7 @@ __ZN5dyld411CacheFinderC2ERKNS_13ProcessConfig7ProcessERKNS1_7LoggingERNS_15Sysc
+ 000000000000e6f0	ldr	x0, [x19, #0x8]
+ 000000000000e6f4	ldr	w8, [x20, #0x3c]
+ 000000000000e6f8	adrp	x9, 119 ; 0x85000
+-000000000000e6fc	add	x9, x9, #0xde5 ; literal pool for: "/System/Library/dyld/"
++000000000000e6fc	add	x9, x9, #0xde5 ; literal pool for: "/var/sy/Library/dyld/"
+ 000000000000e700	adrp	x10, 119 ; 0x85000
+ 000000000000e704	add	x10, x10, #0xdbe ; literal pool for: "/System/DriverKit/System/Library/dyld/"
+ 000000000000e708	cmp	w8, #0xa
+@@ -44863,8 +44863,8 @@ __ZNK5dyld415SyscallDelegate9amfiFlagsEbb:
+ 000000000002ff6c	add	sp, sp, #0x20
+ 000000000002ff70	retab
+ __ZNK5dyld415SyscallDelegate15internalInstallEv:
+-000000000002ff74	pacibsp
+-000000000002ff78	stp	x29, x30, [sp, #-0x10]!
++000000000002ff74	mov	x0, #0x1
++000000000002ff78	ret
+ 000000000002ff7c	mov	x29, sp
+ 000000000002ff80	mov	w0, #0x10
+ 000000000002ff84	bl	_csr_check
+@@ -57401,7 +57401,7 @@ __ZN5dyld3L18preflightCacheFileERKNS_18SharedCacheOptionsEPNS_19SharedCacheLoadI
+ 000000000003bfa0	retab
+ 000000000003bfa4	add	x24, sp, #0xed8
+ 000000000003bfa8	ldr	w25, [sp, #0xee8]
+-000000000003bfac	cmp	w25, #0xe0
++000000000003bfac	cmp	w25, #0x10, lsl #12
+ 000000000003bfb0	b.lo	0x3bfe0
+ 000000000003bfb4	ldr	w8, [x22, #0xc]
+ 000000000003bfb8	ldr	w9, [sp, #0xfb0]
+@@ -64608,7 +64608,7 @@ __ZN5dyld44APIs35dyld_shared_cache_find_iterate_textEPKhPPKcU13block_pointerFvPK
+ 0000000000042e4c	orr	x8, x8, x9
+ 0000000000042e50	cbz	x8, 0x42f98
+ 0000000000042e54	adrp	x2, 67 ; 0x85000
+-0000000000042e58	add	x2, x2, #0xde5 ; literal pool for: "/System/Library/dyld/"
++0000000000042e58	add	x2, x2, #0xde5 ; literal pool for: "/var/sy/Library/dyld/"
+ 0000000000042e5c	add	x3, sp, #0x60
+ 0000000000042e60	mov	x0, x21
+ 0000000000042e64	mov	x1, x20
+@@ -64619,7 +64619,7 @@ __ZN5dyld44APIs35dyld_shared_cache_find_iterate_textEPKhPPKcU13block_pointerFvPK
+ 0000000000042e78	adrp	x25, 92 ; 0x9e000
+ 0000000000042e7c	add	x25, x25, #0x6d8
+ 0000000000042e80	adrp	x24, 67 ; 0x85000
+-0000000000042e84	add	x24, x24, #0xde5 ; literal pool for: "/System/Library/dyld/"
++0000000000042e84	add	x24, x24, #0xde5 ; literal pool for: "/var/sy/Library/dyld/"
+ 0000000000042e88	ldr	x1, [x25, x26]
+ 0000000000042e8c	strb	wzr, [sp, #0x68]
+ 0000000000042e90	add	x0, sp, #0x68
+@@ -88054,7 +88054,7 @@ __ZNK5dyld311GradedArchs5gradeEjjb:
+ 00000000000595a0	ldr	w11, [x10, #0x4]
+ 00000000000595a4	cmp	w11, w9
+ 00000000000595a8	b.ne	0x595b8
+-00000000000595ac	ldrb	w10, [x10, #0x8]
++00000000000595ac	mov	w10, #0x0
+ 00000000000595b0	cbz	w10, 0x595cc
+ 00000000000595b4	tbnz	w3, #0x0, 0x595cc
+ 00000000000595b8	add	x8, x8, #0xc
+@@ -88436,8 +88436,8 @@ ____ZNK5dyld39MachOFile16builtForPlatformENS_8PlatformEb_block_invoke:
+ 0000000000059b60	strb	w9, [x8, #0x18]!
+ 0000000000059b64	ret
+ __ZNK5dyld39MachOFile19loadableIntoProcessENS_8PlatformEPKc:
+-0000000000059b68	pacibsp
+-0000000000059b6c	stp	x24, x23, [sp, #-0x40]!
++0000000000059b68	mov	x0, #0x1
++0000000000059b6c	ret
+ 0000000000059b70	stp	x22, x21, [sp, #0x10]
+ 0000000000059b74	stp	x20, x19, [sp, #0x20]
+ 0000000000059b78	stp	x29, x30, [sp, #0x30]
+@@ -90774,7 +90774,7 @@ __ZN5dyld39MachOFile15compatibleSliceER11DiagnosticsPKvmPKcNS_8PlatformEbRKNS_11
+ 000000000005bef4	add	x29, sp, #0x40
+ 000000000005bef8	sub	sp, sp, #0x260
+ 000000000005befc	mov	x23, x6
+-000000000005bf00	mov	x24, x5
++000000000005bf00	mov	x24, #0x1
+ 000000000005bf04	mov	x22, x4
+ 000000000005bf08	mov	x21, x3
+ 000000000005bf0c	mov	x25, x2
+@@ -109715,10 +109715,10 @@ _OUTLINED_FUNCTION_1:
+ 000000000006e2c4	b	___assert_rtn
+ _amfi_check_dyld_policy_self:
+ 000000000006e2c8	cbz	x1, 0x6e334
+-000000000006e2cc	pacibsp
+-000000000006e2d0	sub	sp, sp, #0x40
+-000000000006e2d4	stp	x20, x19, [sp, #0x20]
+-000000000006e2d8	stp	x29, x30, [sp, #0x30]
++000000000006e2cc	mov	x8, #0xff
++000000000006e2d0	str	x8, [x1]
++000000000006e2d4	mov	x0, #0x0
++000000000006e2d8	ret
+ 000000000006e2dc	add	x29, sp, #0x30
+ 000000000006e2e0	mov	x19, x1
+ 000000000006e2e4	str	xzr, [x1]
+@@ -113336,7 +113336,7 @@ _ignition_get_shared_cache_directory:
+ 0000000000071a44	ldr	x8, [x0]
+ 0000000000071a48	ldr	w8, [x8, #0x24]
+ 0000000000071a4c	adrp	x9, 20 ; 0x85000
+-0000000000071a50	add	x9, x9, #0xde5 ; literal pool for: "/System/Library/dyld/"
++0000000000071a50	add	x9, x9, #0xde5 ; literal pool for: "/var/sy/Library/dyld/"
+ 0000000000071a54	adrp	x10, 20 ; 0x85000
+ 0000000000071a58	add	x10, x10, #0xdbe ; literal pool for: "/System/DriverKit/System/Library/dyld/"
+ 0000000000071a5c	cmp	w8, #0xa
+@@ -123035,7 +123035,7 @@ _mach_msg_overwrite:
+ 000000000007ae58	ccmp	x9, #0x0, #0x4, eq
+ 000000000007ae5c	b.eq	0x7ae64
+ 000000000007ae60	str	w6, [x0, #0x8]
+-000000000007ae64	orr	x1, x13, #0x800000000
++000000000007ae64	orr	x1, x13, #0x400000000
+ 000000000007ae68	tbnz	x13, #0x20, 0x7aeb8
+ 000000000007ae6c	mov	x8, #0x0
+ 000000000007ae70	mov	w7, w5
