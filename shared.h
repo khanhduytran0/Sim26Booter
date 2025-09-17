@@ -3,21 +3,19 @@
 
 #define TANK_SERVER_VALIDATE 707
 #define TANK_SERVER_GET_SERVICE_PORT 708
-#define TANK_SERVER_GET_LAUNCHD_PORT 1000
+#define TASK_GET_SPECIAL_PORT 1000
 #define HOOK_MACH_MAX_REPLY_SIZE (sizeof(struct jbserver_mach_msg_checkin_reply) + MAX_TRAILER_SIZE)
 
 // https://stackoverflow.com/a/35447525
 typedef struct {
     mach_msg_header_t          header;
     mach_msg_body_t            body;
-    mach_msg_port_descriptor_t task_port;
+    mach_msg_port_descriptor_t special_port;
 } send_port_msg;
 void fill_send_port_msg(send_port_msg *msg);
+kern_return_t task_get_launchd_port(mach_port_t task, mach_port_t *special_port);
 
 boolean_t mig_callback_dopamine(mach_msg_header_t *message, mach_msg_header_t *reply);
-void send_port(mach_port_t remote_port, mach_port_t port);
-mach_port_t recv_port(mach_port_t recv_port);
-mach_port_t setup_recv_port(void);
 
 // interpose.h
 #define DYLD_INTERPOSE(_replacement,_replacee) \
@@ -29,6 +27,7 @@ mach_port_t setup_recv_port(void);
 #define JBSERVER_MACH_CHECKIN 0
 #define JBSERVER_MACH_FORK_FIX 1
 #define JBSERVER_MACH_TRUST_FILE 2
+#define JBSERVER_MACH_GET_HOST_LAUNCHD_PORT 1000
 struct jbserver_mach_msg {
     mach_msg_header_t hdr;
     uint64_t magic;
@@ -59,5 +58,6 @@ extern int xpc_receive_mach_msg(void *msg, void *a2, void *a3, void *a4, xpc_obj
 
 mach_port_t jbclient_mach_get_launchd_port();
 kern_return_t jbclient_mach_send_msg(mach_msg_header_t *hdr, struct jbserver_mach_msg_reply *reply);
+kern_return_t jbclient_mach_send_msg_internal(mach_msg_header_t *hdr, struct jbserver_mach_msg_reply *reply, mach_port_t launchdPort, mach_port_t replyPort, boolean_t isReceivingPort);
 
 #define JBSERVER_SIM_MACH_GET_LAUNCHD_PORT 1000

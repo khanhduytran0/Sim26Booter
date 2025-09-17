@@ -13,15 +13,19 @@ mach_port_t jbclient_mach_get_launchd_port(void) {
 // launchd_sim_trampoline_tank acts like a boomerang which sends launchd_sim's own bootstrap port back to it
 static dispatch_mig_callback_t mig_callback_orig;
 static boolean_t mig_callback_orig_called;
-static boolean_t mig_callback_get_launchd(mach_msg_header_t *message, mach_msg_header_t *reply) {
-    send_port_msg *msg = (void *)message;
+static boolean_t mig_callback_get_special_port(mach_msg_header_t *message, mach_msg_header_t *reply) {
     send_port_msg *reply_msg = (void *)reply;
     
     fill_send_port_msg(reply_msg);
-    reply_msg->header.msgh_remote_port = msg->task_port.name;
+    reply_msg->header.msgh_remote_port = message->msgh_remote_port;
     reply_msg->header.msgh_id = message->msgh_id + 100;
-    reply_msg->task_port.name = jbclient_mach_get_launchd_port();
+    reply_msg->special_port.name = jbclient_mach_get_launchd_port();
     
+//    mach_msg_return_t mr = mach_msg(&reply_msg->header, MACH_SEND_MSG, reply_msg->header.msgh_size, 0, 0, 0, 0);
+//    if(mr != MACH_MSG_SUCCESS) {
+//        printf("mig_callback_get_special_port: failed to send reply message: 0x%x\n", mr);
+//    }
+//    assert(mr == MACH_MSG_SUCCESS);
     return true;
 }
 
@@ -29,9 +33,12 @@ boolean_t hooked_dispatch_mig_callback(mach_msg_header_t *message, mach_msg_head
     //NSLog(@"tank: message msgh_bits=0x%x id=0x%x size=%u", message->msgh_bits, message->msgh_id, message->msgh_size);
     switch(message->msgh_id) {
         case 0x400000ce: // https://github.com/opa334/Dopamine/blob/314f7f2/BaseBin/libjailbreak/src/jbclient_mach.c#L33
-            return mig_callback_dopamine(message, reply);
-        case TANK_SERVER_GET_LAUNCHD_PORT: // launchd_sim_hook requests launchd port
-            return mig_callback_get_launchd(message, reply);
+            struct jbserver_mach_msg *jb_msg = (struct jbserver_mach_msg *)message;
+            if(jb_msg->action == JBSERVER_MACH_GET_HOST_LAUNCHD_PORT) {
+                return mig_callback_get_special_port(message, reply);
+            } else {
+                return mig_callback_dopamine(message, reply);
+            }
         case TANK_SERVER_VALIDATE: // launchd_sim_trampoline validates tank connection
         case TANK_SERVER_GET_SERVICE_PORT: // launchd_sim requests its bootstrap port
             mig_callback_orig_called = true;
@@ -63,6 +70,10 @@ int hooked_xpc_pipe_try_receive(mach_port_t p, xpc_object_t *message, mach_port_
         result = xpc_pipe_try_receive(p, message, recvp, hooked_dispatch_mig_callback, maxmsgsz, flags);
     } while(result == KERN_SUCCESS && !mig_callback_orig_called);
     
+    if(result != KERN_SUCCESS) {
+        printf("Failed to handle something...\n");
+        abort();
+    }
     return result;
 }
 DYLD_INTERPOSE(hooked_xpc_pipe_try_receive, xpc_pipe_try_receive);

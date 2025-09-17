@@ -1,5 +1,13 @@
 # Sim26Booter
-Boot iOS 26 simulator on iPhone?
+Boot iOS 26 simulator on iPhone? Doesn't work yet
+
+Requires Dopamine jailbreak on iOS 16.5
+
+## What works
+- [x] Passing `launchd` mach port to child processes
+- [ ] Metal XPC
+- [ ] IOSurface
+- [ ] Audio
 
 ## Simulator boot process
 > [!NOTE]

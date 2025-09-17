@@ -3,12 +3,11 @@
 #import "shared.h"
 
 boolean_t mig_callback_dopamine(mach_msg_header_t *message, mach_msg_header_t *reply) {
-    mach_port_t sender_reply_port = message->msgh_remote_port;
-
     struct jbserver_mach_msg *jb_msg = (struct jbserver_mach_msg *)message;
     struct jbserver_mach_msg_reply *jb_reply = (struct jbserver_mach_msg_reply *)reply;
     assert(jb_msg->magic == JBSERVER_MACH_MAGIC);
-
+    
+    mach_port_t sender_reply_port = message->msgh_remote_port;
     switch(jb_msg->action) {
         case JBSERVER_MACH_CHECKIN:
             reply->msgh_size = sizeof(struct jbserver_mach_msg_checkin_reply) + MAX_TRAILER_SIZE;
@@ -41,17 +40,18 @@ boolean_t mig_callback_dopamine(mach_msg_header_t *message, mach_msg_header_t *r
 }
 
 // https://github.com/opa334/Dopamine/blob/314f7f2/BaseBin/libjailbreak/src/jbclient_mach.c#L17-L52
-kern_return_t jbclient_mach_send_msg(mach_msg_header_t *hdr, struct jbserver_mach_msg_reply *reply) {
-    mach_port_t replyPort = mig_get_reply_port();
+kern_return_t jbclient_mach_send_msg_internal(mach_msg_header_t *hdr, struct jbserver_mach_msg_reply *reply, mach_port_t launchdPort, mach_port_t replyPort, boolean_t isReceivingPort)
+{
+    //mach_port_t replyPort = mig_get_reply_port();
     if (!replyPort)
         return KERN_FAILURE;
     
-    mach_port_t launchdPort = jbclient_mach_get_launchd_port();
+    //mach_port_t launchdPort = jbclient_mach_get_launchd_port();
     if (!launchdPort)
         return KERN_FAILURE;
     
-    hdr->msgh_bits |= MACH_MSGH_BITS(MACH_MSG_TYPE_COPY_SEND, MACH_MSG_TYPE_MAKE_SEND_ONCE);
-
+    hdr->msgh_bits |= MACH_MSGH_BITS(MACH_MSG_TYPE_COPY_SEND, (isReceivingPort ? MACH_MSG_TYPE_MAKE_SEND : MACH_MSG_TYPE_MAKE_SEND_ONCE));
+    
     // size already set
     hdr->msgh_remote_port  = launchdPort;
     hdr->msgh_local_port   = replyPort;
@@ -70,11 +70,15 @@ kern_return_t jbclient_mach_send_msg(mach_msg_header_t *hdr, struct jbserver_mac
     }
     
     // Get rid of any rights we might have received
-    mach_msg_destroy(&reply->msg.hdr);
+    if(isReceivingPort)
+        mach_port_deallocate(task_self_trap(), replyPort);
     return KERN_SUCCESS;
 }
+kern_return_t jbclient_mach_send_msg(mach_msg_header_t *hdr, struct jbserver_mach_msg_reply *reply)
+{
+    return jbclient_mach_send_msg_internal(hdr, reply, jbclient_mach_get_launchd_port(), mig_get_reply_port(), false);
+}
 
-// https://stackoverflow.com/a/35447525
 void fill_send_port_msg(send_port_msg *msg) {
     msg->header.msgh_local_port = MACH_PORT_NULL;
     msg->header.msgh_bits = MACH_MSGH_BITS (MACH_MSG_TYPE_COPY_SEND, 0) |
@@ -82,51 +86,41 @@ void fill_send_port_msg(send_port_msg *msg) {
     msg->header.msgh_size = sizeof(*msg);
 
     msg->body.msgh_descriptor_count = 1;
-    msg->task_port.disposition = MACH_MSG_TYPE_COPY_SEND;
-    msg->task_port.type = MACH_MSG_PORT_DESCRIPTOR;
+    msg->special_port.disposition = MACH_MSG_TYPE_COPY_SEND;
+    msg->special_port.type = MACH_MSG_PORT_DESCRIPTOR;
 }
 
-void send_port(mach_port_t remote_port, mach_port_t port) {
-    kern_return_t err;
-
-    send_port_msg msg;
-    fill_send_port_msg(&msg);
-    msg.header.msgh_remote_port = remote_port;
-    msg.header.msgh_id = TANK_SERVER_GET_LAUNCHD_PORT;
-    msg.task_port.name = port;
-    
-    err = mach_msg_send(&msg.header);
-    assert(err == KERN_SUCCESS);
+mach_port_t setup_recv_port(void)
+{
+    mach_port_t p = MACH_PORT_NULL;
+    kern_return_t kr = _kernelrpc_mach_port_allocate_trap(task_self_trap(), MACH_PORT_RIGHT_RECEIVE, &p);
+    assert(kr == KERN_SUCCESS);
+    kr = _kernelrpc_mach_port_insert_right_trap(task_self_trap(), p, p, MACH_MSG_TYPE_MAKE_SEND);
+    assert(kr == KERN_SUCCESS);
+    return p;
 }
+kern_return_t task_get_launchd_port(mach_port_t task, mach_port_t *special_port) {
+    struct jbserver_mach_msg msg;
+    msg.hdr.msgh_size = sizeof(msg);
+    msg.hdr.msgh_bits = 0;
+    msg.action = JBSERVER_MACH_GET_HOST_LAUNCHD_PORT;
+    msg.magic = JBSERVER_MACH_MAGIC;
 
-mach_port_t recv_port(mach_port_t recv_port) {
-    kern_return_t err;
     struct {
-        mach_msg_header_t          header;
-        mach_msg_body_t            body;
-        mach_msg_port_descriptor_t task_port;
-        mach_msg_trailer_t         trailer;
-    } msg;
+        mach_msg_header_t Head;
+        /* start of the kernel processed data */
+        mach_msg_body_t msgh_body;
+        mach_msg_port_descriptor_t special_port;
+        /* end of the kernel processed data */
+        mach_msg_trailer_t trailer;
+    } reply;
+    reply.Head.msgh_size = sizeof(reply);
 
-    err = mach_msg(&msg.header, MACH_RCV_MSG,
-                    0, sizeof msg, recv_port,
-                    MACH_MSG_TIMEOUT_NONE, MACH_PORT_NULL);
-    assert(err == KERN_SUCCESS);
+    mach_port_t launchdPort = MACH_PORT_NULL;
+    task_get_bootstrap_port(task_self_trap(), &launchdPort);
+    kern_return_t kr = jbclient_mach_send_msg_internal(&msg.hdr, (struct jbserver_mach_msg_reply *)&reply, launchdPort, setup_recv_port(), true);
+    if (kr != KERN_SUCCESS) return kr;
 
-    return msg.task_port.name;
-}
-
-mach_port_t setup_recv_port(void) {
-    kern_return_t       err;
-    mach_port_t         port = MACH_PORT_NULL;
-    err = mach_port_allocate(mach_task_self (),
-                              MACH_PORT_RIGHT_RECEIVE, &port);
-    assert(err == KERN_SUCCESS);
-    err = mach_port_insert_right(mach_task_self (),
-                                  port,
-                                  port,
-                                  MACH_MSG_TYPE_MAKE_SEND);
-    assert(err == KERN_SUCCESS);
-
-    return port;
+    *special_port = reply.special_port.name;
+    return KERN_SUCCESS;
 }
