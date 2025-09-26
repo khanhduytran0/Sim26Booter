@@ -8,6 +8,8 @@ SimFramebuffer_PUBLIC_HEADERS = SimFramebuffer.h
 SimFramebuffer_INSTALL_PATH = /iOSSimData/override/System/Library/PrivateFrameworks
 SimFramebuffer_CFLAGS = -fobjc-arc
 SimFramebuffer_CODESIGN_FLAGS = bash ../vtool_and_sign.sh -S
+SimFramebuffer_LDFLAGS = -F../Frameworks
+SimFramebuffer_FRAMEWORKS = IOMobileFramebuffer
 TARGET_CODESIGN = env PLATFORM=7
 
 include $(THEOS_MAKE_PATH)/framework.mk

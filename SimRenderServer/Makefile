@@ -5,9 +5,11 @@ BUNDLE_NAME = SimRenderServer
 
 SimRenderServer_DYNAMIC_LIBRARY = 0
 SimRenderServer_BUNDLE_EXTENSION = xpc
-SimRenderServer_FILES = main.m
+SimRenderServer_FILES = main.m hook.x
 SimRenderServer_CFLAGS = -fobjc-arc
 SimRenderServer_CODESIGN_FLAGS = -S../entitlements.plist
 SimRenderServer_INSTALL_PATH = /usr/macOS/Frameworks/MTLSimDriver.framework/XPCServices
+SimRenderServer_LDFLAGS = -F../Frameworks -Wl,-U,_IOSurfaceClientGetID -Wl,-U,_IOSurfaceClientSetValue
+SimRenderServer_FRAMEWORKS = IOMobileFramebuffer IOSurface
 
 include $(THEOS_MAKE_PATH)/bundle.mk
