@@ -11,6 +11,7 @@ SUBPROJECTS += launchd_sim_trampoline_hook
 SUBPROJECTS += launchd_sim_hook
 
 SUBPROJECTS += SimFramebuffer
+SUBPROJECTS += SimRenderServer
 SUBPROJECTS += simsendport
 SUBPROJECTS += simxpctest
 include $(THEOS_MAKE_PATH)/aggregate.mk

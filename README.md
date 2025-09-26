@@ -5,8 +5,8 @@ Requires Dopamine jailbreak on iOS 16.5
 
 ## What works
 - [x] Passing `launchd` mach port to child processes
-- [ ] Metal XPC
-- [ ] IOSurface
+- [x] Metal XPC
+- [x] IOSurface
 - [ ] Audio
 
 ## Simulator boot process

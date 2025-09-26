@@ -37,8 +37,8 @@ int hooked_xpc_receive_mach_msg(void *msg, void *a2, void *a3, void *a4, xpc_obj
             if(jbsMachMsg->action == JBSERVER_MACH_GET_HOST_LAUNCHD_PORT) {
                 jbserver_sim_get_launchd(&jbsMachMsg->hdr);
             } else {
-                dprintf(6, "ERROR: xpc_receive_mach_msg jbserver received unknown action? %d\n", jbsMachMsg->action);
-                abort();
+                dprintf(6, "ERROR: Unexpectedly received jbserver action %d\n", jbsMachMsg->action);
+                //abort();
             }
         }
     }

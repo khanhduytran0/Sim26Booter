@@ -6,7 +6,9 @@ TOOL_NAME = simxpctest
 simxpctest_FILES = main.m
 simxpctest_CFLAGS = -fobjc-arc
 simxpctest_INSTALL_PATH = /usr/local/bin
-simxpctest_CODESIGN_FLAGS = bash ../vtool_and_sign.sh -Sentitlements.plist
+simxpctest_CODESIGN_FLAGS = bash ../vtool_and_sign.sh -S../entitlements.plist
+simxpctest_LDFLAGS = -F../Frameworks
+#simxpctest_FRAMEWORKS = IOMobileFramebuffer
 TARGET_CODESIGN = env PLATFORM=7
 
 include $(THEOS_MAKE_PATH)/tool.mk
