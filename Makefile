@@ -10,6 +10,7 @@ SUBPROJECTS += launchd_sim_trampoline_hook
 # iOS simulator subprojects
 SUBPROJECTS += launchd_sim_hook
 
+SUBPROJECTS += FakeMobileCoreServices
 SUBPROJECTS += SimFramebuffer
 SUBPROJECTS += SimRenderServer
 SUBPROJECTS += simsendport

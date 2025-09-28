@@ -1,13 +1,16 @@
 # Sim26Booter
-Boot iOS 26 simulator on iPhone? Doesn't work yet
+Boot iOS 26 simulator on iPhone
 
-Requires Dopamine jailbreak on iOS 16.5
+Only tested with Dopamine jailbreak on iOS 16.5, iPhone Xs Max.
+While there is no hardcoded offset at the moment, some code paths are hardcoded for Dopamine.
 
 ## What works
 - [x] Passing `launchd` mach port to child processes
 - [x] Metal XPC
 - [x] IOSurface
 - [ ] Audio
+- [ ] Sensors
+- [ ] HID Input (currently can be controlled using [TrollVNC](https://github.com/OwnGoalStudio/TrollVNC))
 
 ## Simulator boot process
 > [!NOTE]

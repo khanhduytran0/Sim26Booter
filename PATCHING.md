@@ -74,3 +74,9 @@ Found the culprit of `xpc_connection_enable_sim2host_4sim` not working: iOS expe
 
 ## 2025-09-26
 Implemented `IOSurface` XPC server
+
+## 2025-09-27
+`-[SWSystemSleepMonitorProvider registerForSystemPowerOnQueue:withDelegate:]` crashes due to missing entitlement in `backboardd` and `SpringBoard`. TODO: find out which one
+
+## 2025-09-29
+Made a fake `MobileCoreServices` that is loaded to all simulator processes to patch out unsupported instructions on A12-A13 (temporary, should emulate later instead?)

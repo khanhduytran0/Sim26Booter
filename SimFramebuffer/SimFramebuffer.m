@@ -8,7 +8,7 @@
 @import CoreGraphics;
 @import Foundation;
 @import IOSurface;
-#import "IOMobileFramebuffer.h"
+//#import "IOMobileFramebuffer.h"
 
 const uint64_t simFramebufferGetStructName = 0xa9017bfda9be4ff4;
 
@@ -35,7 +35,7 @@ typedef struct {
 @property(nonatomic) NSString *displayUID;
 @property(nonatomic) NSString *name;
 @property(nonatomic) CGSize size;
-@property(nonatomic) IOMobileFramebufferRef fbConn;
+//@property(nonatomic) IOMobileFramebufferRef fbConn;
 @property(nonatomic) IOSurfaceRef surface;
 @end
 @interface SFBSwapchain : SFBDisplay
@@ -59,9 +59,7 @@ typedef struct {
     self.type = 0;
     self.displayUID = @"PurpleMain";
     self.name = @"LCD";
-    IOMobileFramebufferGetMainDisplay(&_fbConn);
-    assert(_fbConn);
-    IOMobileFramebufferGetDisplaySize(_fbConn, &_size);
+    self.size = CGSizeMake(atof((char*)getenv("SIMULATOR_MAINSCREEN_WIDTH")), atof((char*)getenv("SIMULATOR_MAINSCREEN_HEIGHT")));
     return self;
 }
 @end
@@ -129,8 +127,8 @@ BOOL SFBSwapchainSwapAddSurface(SFBSwapchain *swapchain, IOSurfaceRef surface, C
     // do note that both rect1 and rect2 are the same
     // for optimization we pack them into a single 48-bit integer
     swapchain.surface = surface;
-    uint64_t packedFrame = ((uint64_t)rect1.origin.x << 36) | ((uint64_t)rect1.origin.y << 24) | ((uint64_t)rect1.size.width << 12) | ((uint64_t)rect1.size.height & 0xfff);
-    IOSurfaceSetValue(surface, (__bridge CFTypeRef _Nonnull)@"SwapCmd", (__bridge CFTypeRef _Nonnull)@(packedFrame));
+//    uint64_t packedFrame = ((uint64_t)rect1.origin.x << 36) | ((uint64_t)rect1.origin.y << 24) | ((uint64_t)rect1.size.width << 12) | ((uint64_t)rect1.size.height & 0xfff);
+//    IOSurfaceSetValue(surface, (__bridge CFTypeRef _Nonnull)@"SwapCmd", (__bridge CFTypeRef _Nonnull)@(packedFrame));
     return YES;
 }
 BOOL SFBSwapchainSwapSubmit(SFBSwapchain *swapchain, NSError **error) {

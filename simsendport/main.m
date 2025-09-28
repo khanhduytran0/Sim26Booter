@@ -6,14 +6,17 @@ kern_return_t bootstrap_look_up(mach_port_t bp, const char *service_name, mach_p
 void (*launch_sim_register_endpoint)(const char *launchd_sim_name, const char *service_name, mach_port_t service_port);
 void xpc_add_bundle(const char *, int);
 void xpc_connection_enable_sim2host_4sim(xpc_connection_t);
+void xpc_connection_set_instance(xpc_connection_t, const uuid_t);
 mach_port_t xpc_endpoint_copy_listener_port_4sim(xpc_object_t endpoint);
 
+NSMutableArray *xpcConnections;
+
 mach_port_t spawn_metal_simulator() {
-    //xuuid_t uuid;
-    //uuid_generate(uuid);
-    static xpc_connection_t connection = NULL;
-    connection = xpc_connection_create("com.apple.metal.simulator", NULL);
-    //xpc_connection_set_instance(connection, uuid);
+    uuid_t uuid;
+    uuid_generate(uuid);
+    xpc_connection_t connection = xpc_connection_create("com.apple.metal.simulator", NULL);
+    [xpcConnections addObject:connection];
+    xpc_connection_set_instance(connection, uuid);
     xpc_connection_set_event_handler(connection, ^(xpc_object_t object) {
         NSLog(@"Process received event: %@", [object description]);
     });
@@ -30,8 +33,8 @@ mach_port_t spawn_metal_simulator() {
 mach_port_t spawn_iosurface_server() {
     //xuuid_t uuid;
     //uuid_generate(uuid);
-    static xpc_connection_t connection = NULL;
-    connection = xpc_connection_create("com.apple.IOSurface.Remote", NULL);
+    xpc_connection_t connection = xpc_connection_create("com.apple.IOSurface.Remote", NULL);
+    [xpcConnections addObject:connection];
     //xpc_connection_set_instance(connection, uuid);
     xpc_connection_set_event_handler(connection, ^(xpc_object_t object) {
         NSLog(@"Process received event: %@", [object description]);
@@ -68,6 +71,8 @@ void validate_launchd_sim_connection() {
 }
 
 int main(int argc, char *argv[], char *envp[]) {
+    xpcConnections = [NSMutableArray array];
+    
     // other services:
     // "com.apple.accelerator.iosurface"
     
@@ -93,13 +98,17 @@ int main(int argc, char *argv[], char *envp[]) {
     xpc_add_bundle(metalXPCPath, 2);
     
     mach_port_t iosurface_port = spawn_iosurface_server();
-    mach_port_t metal_port = spawn_metal_simulator();
     launch_sim_register_endpoint(getenv("LAUNCHD_SIM_LABEL"), "com.apple.IOSurface.Remote", iosurface_port);
-    launch_sim_register_endpoint(getenv("LAUNCHD_SIM_LABEL"), "com.apple.xpc.launchd.host", bootstrap_port);
-    launch_sim_register_endpoint(getenv("LAUNCHD_SIM_LABEL"), "com.apple.metal.simulator", metal_port);
-    launch_sim_register_endpoint(getenv("LAUNCHD_SIM_LABEL"), "com.apple.metal.simulator.backboardd", metal_port);
-    launch_sim_register_endpoint(getenv("LAUNCHD_SIM_LABEL"), "com.apple.metal.simulator.SpringBoard", metal_port);
-
+    
+    // we create 3 separate metal ports just like how it's done on macOS to avoid one crashing and taking down others
+    mach_port_t metal_apps_port = spawn_metal_simulator();
+    mach_port_t metal_backboardd_port = spawn_metal_simulator();
+    mach_port_t metal_springboard_port = spawn_metal_simulator();
+    launch_sim_register_endpoint(getenv("LAUNCHD_SIM_LABEL"), "com.apple.metal.simulator", metal_apps_port);
+    launch_sim_register_endpoint(getenv("LAUNCHD_SIM_LABEL"), "com.apple.metal.simulator.backboardd", metal_backboardd_port);
+    launch_sim_register_endpoint(getenv("LAUNCHD_SIM_LABEL"), "com.apple.metal.simulator.SpringBoard", metal_springboard_port);
+    
+    //launch_sim_register_endpoint(getenv("LAUNCHD_SIM_LABEL"), "com.apple.xpc.launchd.host", bootstrap_port);
     CFRunLoopRun();
     
     return 0;
