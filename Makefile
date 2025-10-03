@@ -1,5 +1,6 @@
 TARGET := iphone:clang:latest:14.0
 ARCHS = arm64
+GO_EASY_ON_ME := 1
 # TODO: replace iOSSimData?
 
 include $(THEOS)/makefiles/common.mk
@@ -13,6 +14,6 @@ SUBPROJECTS += launchd_sim_hook
 SUBPROJECTS += FakeMobileCoreServices
 SUBPROJECTS += SimFramebuffer
 SUBPROJECTS += SimRenderServer
-SUBPROJECTS += simsendport
+SUBPROJECTS += SimBooter
 SUBPROJECTS += simxpctest
 include $(THEOS_MAKE_PATH)/aggregate.mk

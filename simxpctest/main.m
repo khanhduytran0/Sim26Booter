@@ -2,6 +2,10 @@
 @import Metal;
 @import QuartzCore;
 #import <rootless.h>
+#include <IOKit/IOKitLib.h>
+#include <IOKit/IOTypes.h>
+#include <IOKit/hid/IOHIDEventSystem.h>
+#include <IOKit/hid/IOHIDEventSystemClient.h>
 
 void* _xpc_serializer_pack(uint64_t x0, xpc_object_t x1_inputMsg, uint64_t x2_xpcVersion, uint64_t x3);
 
@@ -11,7 +15,31 @@ void xpc_connection_set_instance(xpc_connection_t, const uuid_t);
 void launch_sim_register_endpoint(const char *launchd_sim_name, const char *service_name, mach_port_t service_port);
 void xpc_connection_enable_sim2host_4sim(xpc_connection_t, int);
 
+void handle_event(void* target, void* refcon, IOHIDServiceRef service, IOHIDEventRef event) {
+    int type = IOHIDEventGetType(event);
+    NSLog(@"Got event of type %d", type);
+    switch(type) {
+        case kIOHIDEventTypeDigitizer:
+            NSLog(@"Got digitizer event: %@", event);
+            break;
+    }
+}
+
+IOHIDEventSystemClientRef IOHIDEventSystemClientCreate( CFAllocatorRef );
 int main(int argc, char *argv[], char *envp[]) {
+    printf("Test IOHID\n");
+    IOHIDEventSystemRef systemRef = IOHIDEventSystemCreate(NULL);
+    IOHIDEventSystemOpen(systemRef, handle_event, NULL, NULL, NULL);
+    IOHIDEventSystemClientRef eventSystemClient = IOHIDEventSystemClientCreate(kCFAllocatorDefault);
+    IOHIDEventSystemClientScheduleWithRunLoop(IOHIDEventSystemClient(), CFRunLoopGetCurrent(), kCFRunLoopDefaultMode);
+    
+    void *handle = dlopen("/System/Library/PrivateFrameworks/BackBoardHIDEventFoundation.framework/BackBoardHIDEventFoundation", RTLD_GLOBAL);
+    assert(handle);
+    void (*IndigoHIDSystemSpawnLoopback)(IOHIDEventSystemRef) = dlsym(handle, "IndigoHIDSystemSpawnLoopback");
+    assert(IndigoHIDSystemSpawnLoopback);
+    IndigoHIDSystemSpawnLoopback(systemRef);
+    
+#if 0
     xpc_connection_t connection;
     xpc_object_t dict;
     xpc_object_t object;
@@ -78,7 +106,9 @@ int main(int argc, char *argv[], char *envp[]) {
     object = xpc_connection_send_message_with_reply_sync(connection, dict);
     printf("Received synced event: %s\n", [object description].UTF8String);
     printf("XPC connection now: %s\n", [connection description].UTF8String);
-    sleep(1);
+#endif
+    
+    CFRunLoopRun();
     
     return 0;
 }

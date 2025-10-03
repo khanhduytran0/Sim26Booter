@@ -8,7 +8,7 @@ void xpc_add_bundle(const char *, int);
 void xpc_connection_enable_sim2host_4sim(xpc_connection_t);
 void xpc_connection_set_instance(xpc_connection_t, const uuid_t);
 mach_port_t xpc_endpoint_copy_listener_port_4sim(xpc_object_t endpoint);
-
+mach_port_t SimulatorHIDServerInit();
 NSMutableArray *xpcConnections;
 
 mach_port_t spawn_metal_simulator() {
@@ -49,6 +49,14 @@ mach_port_t spawn_iosurface_server() {
     return port;
 }
 
+void add_xpc_bundle(const char *path) {
+    if(access(path, F_OK) != 0) {
+        printf("XPC service not found at %s\n", path);
+        exit(1);
+    }
+    xpc_add_bundle(path, 2);
+}
+
 void *dlopen_or_exit(const char *path) {
     void *handle = dlopen(path, RTLD_GLOBAL);
     if (!handle) {
@@ -73,9 +81,6 @@ void validate_launchd_sim_connection() {
 int main(int argc, char *argv[], char *envp[]) {
     xpcConnections = [NSMutableArray array];
     
-    // other services:
-    // "com.apple.accelerator.iosurface"
-    
     setenv("LAUNCHD_SIM_LABEL", "com.apple.CoreSimulator.SimDevice.00000000-0000-0000-0000-000000000000", 0);
     validate_launchd_sim_connection();
     
@@ -83,20 +88,14 @@ int main(int argc, char *argv[], char *envp[]) {
     launch_sim_register_endpoint = dlsym(liblaunch_sim, "launch_sim_register_endpoint");
     assert(launch_sim_register_endpoint);
     
-    const char *iosurfaceXPCPath = JBROOT_PATH("/usr/macOS/Frameworks/MTLSimDriver.framework/XPCServices/SimRenderServer.xpc");
-    if(access(iosurfaceXPCPath, F_OK) != 0) {
-        printf("SimRenderServer XPC service not found at %s\n", iosurfaceXPCPath);
-        exit(1);
-    }
-    xpc_add_bundle(iosurfaceXPCPath, 2);
+    add_xpc_bundle(JBROOT_PATH("/usr/macOS/Frameworks/MTLSimDriver.framework/XPCServices/SimRenderServer.xpc"));
+    add_xpc_bundle(JBROOT_PATH("/usr/macOS/Frameworks/MTLSimDriver.framework/XPCServices/MTLSimDriverHost.xpc"));
     
-    const char *metalXPCPath = JBROOT_PATH("/usr/macOS/Frameworks/MTLSimDriver.framework/XPCServices/MTLSimDriverHost.xpc");
-    if(access(metalXPCPath, F_OK) != 0) {
-        printf("Metal XPC service not found at %s\n", metalXPCPath);
-        exit(1);
-    }
-    xpc_add_bundle(metalXPCPath, 2);
+    // register Indigo server
+    mach_port_t indigo_port = SimulatorHIDServerInit();
+    launch_sim_register_endpoint(getenv("LAUNCHD_SIM_LABEL"), "IndigoHIDRegistrationPort", indigo_port);
     
+    // register IOSurface server
     mach_port_t iosurface_port = spawn_iosurface_server();
     launch_sim_register_endpoint(getenv("LAUNCHD_SIM_LABEL"), "com.apple.IOSurface.Remote", iosurface_port);
     
@@ -108,8 +107,9 @@ int main(int argc, char *argv[], char *envp[]) {
     launch_sim_register_endpoint(getenv("LAUNCHD_SIM_LABEL"), "com.apple.metal.simulator.backboardd", metal_backboardd_port);
     launch_sim_register_endpoint(getenv("LAUNCHD_SIM_LABEL"), "com.apple.metal.simulator.SpringBoard", metal_springboard_port);
     
-    //launch_sim_register_endpoint(getenv("LAUNCHD_SIM_LABEL"), "com.apple.xpc.launchd.host", bootstrap_port);
-    CFRunLoopRun();
+    // register host launchd port
+    launch_sim_register_endpoint(getenv("LAUNCHD_SIM_LABEL"), "com.apple.CoreSimulator.host.bootstrap_port", bootstrap_port);
     
+    CFRunLoopRun();
     return 0;
 }

@@ -137,8 +137,8 @@
 	<true/>
 	<key>com.apple.private.dfr.brightness-access</key>
 	<true/>
-    <key>com.apple.private.domain-extension</key>
-    <true/>
+	<key>com.apple.private.domain-extension</key>
+	<true/>
 	<key>com.apple.private.gain-map-access</key>
 	<true/>
 	<key>com.apple.private.gpuwrangler</key>
@@ -242,6 +242,8 @@
 	<true/>
 	<key>com.apple.security.iokit-user-client-class</key>
 	<array>
+		<string>AppleMultitouchDeviceUserClient</string>
+		<string>AppleMultitouchSPIUserClient</string>
 		<string>AGXCommandQueue</string>
 		<string>AGXDevice</string>
 		<string>AGXDeviceUserClient</string>
@@ -259,6 +261,7 @@
 		<string>IOAccelSharedUserClient2</string>
 		<string>IOAccelSubmitter2</string>
 		<string>IOHIDEventServiceFastPathUserClient</string>
+		<string>IOHIDEventServiceUserClient</string>
 		<string>IOHIDLibUserClient</string>
 		<string>IOMobileFramebufferUserClient</string>
 		<string>IOReportUserClient</string>
